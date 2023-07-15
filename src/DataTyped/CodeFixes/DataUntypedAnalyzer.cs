@@ -135,25 +135,23 @@ public class DataUntypedCodeFixProvider : CodeFixProvider
 
         variableName = variableName.Substring(0, 1).ToUpper() + variableName.Substring(1);
 
-        if (declarator is not null)
-        {
-            var asd = 5;
-        }
-        else if (assignment is not null)
-        {
-            var asd = 5;
-        }
-
         if (invocation.Expression is not MemberAccessExpressionSyntax maes)
             return document;
 
         if (maes.Name is not IdentifierNameSyntax methodName)
             return document;
 
-        maes = maes.WithName(SyntaxFactory.GenericName(SyntaxFactory.Identifier(methodName.Identifier.Text), SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[]
-        {
-            SyntaxFactory.IdentifierName(variableName)
-        }))));
+        maes = maes.WithName(
+            SyntaxFactory.GenericName(
+                SyntaxFactory.Identifier(methodName.Identifier.Text), 
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList<TypeSyntax>(new[]
+                    {
+                        SyntaxFactory.IdentifierName(variableName)
+                    })
+                )
+            )
+        );
 
         var newNode = invocation.WithExpression(maes);
         var root = await document.GetSyntaxRootAsync(cancellationToken);
