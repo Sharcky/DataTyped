@@ -20,7 +20,7 @@ public static class Rules
         new DiagnosticDescriptor(
             DataUntypedId,
             "Data is untyped",
-            "Data is untyped long description",
+            "This data is consumed in a type unsafe manner. You can leverage DataTyped capabilities to create an ad-hoc type-safe object model for this data.",
             Category,
             DiagnosticSeverity.Warning,
             true,
@@ -96,7 +96,6 @@ public class DataUntypedCodeFixProvider : CodeFixProvider
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        // TODO: Replace the following code with your own analysis, generating a CodeAction for each fix to suggest
         var diagnostic = context.Diagnostics.First();
         var diagnosticSpan = diagnostic.Location.SourceSpan;
 
