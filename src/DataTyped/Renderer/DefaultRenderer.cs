@@ -1,9 +1,5 @@
 ﻿using DataTyped.Model;
-using DataTyped.Parser;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Generic;
 using System.Text;
 using DataTyped.Generator;
 
@@ -92,8 +88,8 @@ internal static class DefaultRenderer
     private static string Render(ParameterDefinition parameter)
     {
         var result = "";
-        if (!string.IsNullOrEmpty(parameter.Name))
-            result += $"{parameter.Name} = ";
+        if (parameter is NamedParameterDefinition namedParameter)
+            result += $"{namedParameter.Name} = ";
 
         if (parameter.Value is int or decimal or double or long)
             result += $"{parameter.Value}";

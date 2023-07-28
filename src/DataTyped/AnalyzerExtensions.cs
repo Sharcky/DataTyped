@@ -18,6 +18,14 @@ public static class AnalyzerExtensions
         context.AddSource($"{identifier}.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
+    public static void AddSourceFile(this SourceProductionContext context, string identifier, string fileContent)
+    {
+        if (string.IsNullOrEmpty(fileContent))
+            return;
+
+        context.AddSource($"{identifier}.g.cs", SourceText.From(fileContent, Encoding.UTF8));
+    }
+
     public static bool EqualsInvariant(this string? str, string? other) =>
         str is null 
         ? other is null

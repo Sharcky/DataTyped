@@ -116,7 +116,15 @@ public class JsonParser: Parser
                         default: property = new PropertyDefinition(propName, "object", prop.Name, orderCounter++); break;
                     }
 
-                    property.Attributes.Add(new AttributeDefinition("System.Text.Json.Serialization.JsonPropertyName", prop.Name));
+                    property.Attributes.Add(new AttributeDefinition
+                    {
+                        Name = "System.Text.Json.Serialization.JsonPropertyName",
+                        SymbolName = "System.Text.Json.Serialization.JsonPropertyName",
+                        Parameters = new List<ParameterDefinition>
+                        {
+                            new ParameterDefinition(propName)
+                        }
+                    });
                     classModel.Properties.Add(property);
                 }
             }

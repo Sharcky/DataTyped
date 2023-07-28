@@ -2,3 +2,4 @@
 {
     internal static class IsExternalInit { }
 }
+

@@ -10,7 +10,7 @@ using DataTyped.Renderer;
 namespace DataTyped.Generator;
 
 [Generator]
-public partial class DataTypeGenerator : ISourceGenerator
+public class DataTypeGenerator : ISourceGenerator
 {
     private const string JsonAttribute = "DataTyped.JsonTypeAttribute";
     private const string CsvAttribute = "DataTyped.CsvTypeAttribute";
