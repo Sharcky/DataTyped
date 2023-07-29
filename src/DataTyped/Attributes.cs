@@ -5,6 +5,31 @@ using System.Text.Json;
 
 namespace DataTyped.Generator;
 
+public static class Attributes
+{
+    public const string JsonAttribute = "DataTyped.JsonTypeAttribute";
+    public const string CsvAttribute = "DataTyped.CsvTypeAttribute";
+    public const string XmlAttribute = "DataTyped.XmlTypeAttribute";
+    public const string YamlAttribute = "DataTyped.YamlTypeAttribute";
+
+    public const string JsonType = "DataTyped.Json";
+    public const string CsvType = "DataTyped.Csv";
+    public const string XmlType = "DataTyped.Xml";
+    public const string YamlType = "DataTyped.Yaml";
+
+    public static readonly string[] AttributeTypes = new[]
+    {
+        JsonAttribute, CsvAttribute, XmlAttribute
+    };
+
+    public static readonly string[] DataTypes = new[]
+    {
+        JsonType, CsvType, XmlType, YamlType
+    };
+}
+
+//----------------------------------
+
 [AttributeUsage(AttributeTargets.Class)]
 public class JsonTypeAttribute : Attribute
 {
@@ -48,7 +73,7 @@ public static class Json
     public static async Task<T?> Get<T>(string urlOrFilePath)
     {
         var content = await Helpers.GetContent(urlOrFilePath);
-       
+
         var result = JsonSerializer.Deserialize<T>(content);
         return result;
     }
@@ -63,7 +88,7 @@ public static class Csv
         {
             var content = await Helpers.HttpGet(urlOrFilePath);
             var reader = new StringReader(content);
-            return new CsvReader(reader,cfg);
+            return new CsvReader(reader, cfg);
         }
         else if (Helpers.IsValidFilePath(urlOrFilePath))
         {

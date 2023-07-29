@@ -1,4 +1,13 @@
-﻿namespace DataTyped.Model;
+﻿using Microsoft.CodeAnalysis;
+
+namespace DataTyped.Model;
+
+
+
+internal abstract class SyntaxProvider<T> where T: SyntaxNode
+{
+
+}
 
 public record AttributeDefinition
 {

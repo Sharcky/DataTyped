@@ -1,13 +1,10 @@
 ﻿using DataTyped.Parser;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
-using System.Text;
 
 namespace DataTyped.Generator;
 
-[Generator]
 public class AdditionalFilesGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -90,9 +87,9 @@ public class AdditionalFilesGenerator : IIncrementalGenerator
             cls.IsRoot
             ? "namespace DataTyped;" + Environment.NewLine
             : "";
-
+        
         return @$"{namespaceDeclaration}
-{indent}internal class {cls.Name}
+{indent}public class {cls.Name}
 {indent}{{
 {props}
 {innerclasses}

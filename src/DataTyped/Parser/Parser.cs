@@ -1,8 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Pluralize.NET;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using DataTyped.Generator;
 using DataTyped.Model;
 
 namespace DataTyped.Parser;
@@ -58,5 +56,5 @@ public abstract class Parser
         return newPropertyName;
     }
 
-    public abstract List<TypeDefinition> Parse(TextReader reader, GeneratorExecutionContext context, TypeDefinition rootType, List<TypeDefinition> types);
+    public abstract List<TypeDefinition> Parse(TextReader reader, SourceProductionContext context, TypeDefinition rootType, List<TypeDefinition> types);
 }

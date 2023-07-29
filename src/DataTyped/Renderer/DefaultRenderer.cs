@@ -7,13 +7,7 @@ namespace DataTyped.Renderer;
 
 internal static class DefaultRenderer
 {
-    private static readonly string RuntimeVersion = Environment.Version.ToString();
-    private static readonly string ToolName = typeof(DataTypeGenerator).Assembly.GetName().Name;
-    private static readonly string ToolVersion = typeof(DataTypeGenerator).Assembly.GetName().Version.ToString();
-
-    private static readonly string TwoLines = $"{Environment.NewLine}{Environment.NewLine}";
-
-    public static void Render(GeneratorExecutionContext context, List<TypeDefinition> types)
+    public static void Render(SourceProductionContext context, List<TypeDefinition> types)
     {
         var groupedByNamespace = 
             types.GroupBy(x => x.Namespace.IsNullOrEmpty() ? "" : x.Namespace)

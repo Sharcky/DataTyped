@@ -6,7 +6,7 @@ namespace DataTyped.Parser;
 
 public class JsonParser: Parser
 {
-    public override List<TypeDefinition> Parse(TextReader reader, GeneratorExecutionContext context, TypeDefinition rootType, List<TypeDefinition> types)
+    public override List<TypeDefinition> Parse(TextReader reader, SourceProductionContext context, TypeDefinition rootType, List<TypeDefinition> types)
     {
         var input = reader.ReadToEnd();
 
@@ -24,7 +24,7 @@ public class JsonParser: Parser
     /// <param name="types">A list that needs to be populated with resolved types</param>
     /// <param name="jsonElement">The current json element that is being read</param>
     /// <param name="typeName">The current type name that is being read</param>
-    private void ResolveTypeRecursive(GeneratorExecutionContext context, List<TypeDefinition> types, JsonElement jsonElement, string typeName, TypeDefinition rootType, string? originalName = null)
+    private void ResolveTypeRecursive(SourceProductionContext context, List<TypeDefinition> types, JsonElement jsonElement, string typeName, TypeDefinition rootType, string? originalName = null)
     {
         var classModel = new TypeDefinition(typeName)
         {

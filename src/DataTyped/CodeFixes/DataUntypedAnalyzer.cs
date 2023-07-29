@@ -63,7 +63,7 @@ public class DataUntypedAnalyzer : DiagnosticAnalyzer
         if (typeInfo.Symbol?.ContainingNamespace?.Name is not "DataTyped")
             return;
 
-        if (!DataTypeGenerator.DataTypes.Contains(typeInfo.Symbol?.ToDisplayString()))
+        if (!Attributes.DataTypes.Contains(typeInfo.Symbol?.ToDisplayString()))
             return;
 
         if (invocation.ArgumentList.Arguments.Count != 1)

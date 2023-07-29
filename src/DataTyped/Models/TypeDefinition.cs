@@ -1,5 +1,4 @@
 ﻿using DataTyped.Generator;
-using Microsoft.CodeAnalysis;
 using System.Diagnostics;
 
 namespace DataTyped.Model;

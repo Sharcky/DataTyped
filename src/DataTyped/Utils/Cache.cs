@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace DataTyped.Generator;
+namespace DataTyped.Utils;
 
 public static class Cache
 {

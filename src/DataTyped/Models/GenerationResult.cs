@@ -1,6 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace DataTyped.Model;
+﻿namespace DataTyped.Model;
 
 public class CodeAnalysisResult
 {
