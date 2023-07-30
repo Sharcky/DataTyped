@@ -2,13 +2,6 @@
 
 namespace DataTyped.Model;
 
-
-
-internal abstract class SyntaxProvider<T> where T: SyntaxNode
-{
-
-}
-
 public record AttributeDefinition
 {
     public string Name { get; init; }

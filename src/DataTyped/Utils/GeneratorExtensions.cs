@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
 namespace DataTyped.Generator;
@@ -75,5 +76,20 @@ public static class GeneratorExtensions
 
     public static IncrementalValueProvider<(T1, T2, T3)> Flatten<T1, T2, T3>(this IncrementalValueProvider<((T1, T2), T3)> source) =>
         source.Select((tuple, _) => (tuple.Item1.Item1, tuple.Item1.Item2, tuple.Item2));
-    
+
+    public static IncrementalValueProvider<(T1, T2, T3, T4)> Flatten<T1, T2, T3, T4>(this IncrementalValueProvider<((T1, T2, T3), T4)> source) =>
+        source.Select((tuple, _) => (tuple.Item1.Item1, tuple.Item1.Item2, tuple.Item1.Item3, tuple.Item2));
+
+    public static IncrementalValueProvider<(T1, T2, T3, T4)> Flatten<T1, T2, T3, T4>(this IncrementalValueProvider<(((T1, T2), T3), T4)> source) =>
+        source.Select((tuple, _) => (tuple.Item1.Item1.Item1, tuple.Item1.Item1.Item2, tuple.Item1.Item2, tuple.Item2));
+
+    public static string? GetProjectRootDirectory(this AnalyzerConfigOptionsProvider config)
+    {
+        // Horrible hack: https://stackoverflow.com/questions/65070796/source-generator-information-about-referencing-project#comment131143151_65093866
+        // I don't understand why these options are right there yet the Roslyn API refuses to allow proper access to it
+        return
+            config.GlobalOptions.TryGetValue("build_property.projectdir", out var projectPath)
+            ? projectPath
+            : null;
+    }
 }

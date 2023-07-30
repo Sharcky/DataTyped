@@ -48,18 +48,12 @@ public static class SyntaxExtensions
     public static string GetName(this INamespaceSymbol namespaceSymbol) =>
         namespaceSymbol.IsGlobalNamespace ? "" : namespaceSymbol.ToDisplayString();
 
-    public static bool TryGetStringLiteralOrConst(this ExpressionSyntax expression, SemanticModel semanticModel, out string value)
+    public static bool TryGetStringLiteral(this ExpressionSyntax expression, out string value)
     {
         if (expression is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.StringLiteralExpression))
         {
             value = literal.Token.ValueText;
             return true;
-        }
-
-        if (expression is MemberAccessExpressionSyntax maes && maes.Expression is IdentifierNameSyntax owner)
-        {
-            var asd = semanticModel.GetTypeInfo(owner);
-            var asd2 = semanticModel.GetSymbolInfo(owner);
         }
 
         value = null;

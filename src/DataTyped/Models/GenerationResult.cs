@@ -2,6 +2,8 @@
 
 public class CodeAnalysisResult
 {
+    public string? ProjectRootPath { get; set; }
+
     private List<TypeDefinition> _types = new();
     
     public IEnumerable<TypeDefinition> TypeDefinitions => _types;

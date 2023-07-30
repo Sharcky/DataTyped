@@ -22,12 +22,15 @@ public class TypesGenerator : IIncrementalGenerator
         var final =
             merged.Combine(context.AdditionalTextsProvider.Collect())
                   .Combine(context.CompilationProvider)
+                  .Combine(context.AnalyzerConfigOptionsProvider)
                   .Flatten();
 
-        context.RegisterSourceOutput(final, (spc, t) =>
+        context.RegisterSourceOutput(final, (spc, tuple) =>
         {
-            var (data, additionalFiles, compilation) = t;
+            var (data, additionalFiles, compilation, options) = tuple;
             var result = new CodeAnalysisResult();
+
+            aggregator2.AdditionalFiles = additionalFiles;
 
             foreach (var d in data)
             {
@@ -35,11 +38,13 @@ public class TypesGenerator : IIncrementalGenerator
                 aggregator2.Aggregate(data, result);
             }
 
-            Render(spc, compilation, additionalFiles, result);
+            var projectRootPath = options.GetProjectRootDirectory();
+
+            Render(spc, compilation, projectRootPath, additionalFiles, result);
         });
     }
     
-    private void Render(SourceProductionContext context, Compilation compilation, ImmutableArray<AdditionalText> additionalFiles, CodeAnalysisResult result)
+    private void Render(SourceProductionContext context, Compilation compilation, string projectRootPath, ImmutableArray<AdditionalText> additionalFiles, CodeAnalysisResult result)
     {
         try
         {
@@ -53,7 +58,7 @@ public class TypesGenerator : IIncrementalGenerator
                 typeDefinitions
                     .ToList()
                     .Where(x => x.DataSource != null)
-                    .Select(x => Task.Run(() => Execute(new ExecutionInput(context, additionalFiles, x, typeDefinitions))))
+                    .Select(x => Task.Run(() => Execute(new ExecutionInput(context, projectRootPath, additionalFiles, x, typeDefinitions))))
                     .ToArray();
 
             var results =
@@ -87,23 +92,29 @@ public class TypesGenerator : IIncrementalGenerator
     {
         try
         {
-            var (context, additionalFiles, rootType, typeDefinitions) = input;
-
-            if (rootType.DataSource!.Type is DataSourceType.Inferred inferred)
+            if (input.RootType.DataSource!.Type is DataSourceType.Inferred inferred)
             {
-                var additionalFile = additionalFiles.FirstOrDefault(x => Path.GetFileName(x.Path) == inferred.Location);
-                if (additionalFile != null)
-                    rootType.DataSource = rootType.DataSource with { Type = new DataSourceType.LocalFile(additionalFile.Path) };
+                var fileList = AdditionalFiles.CreateList(input.AdditionalFiles, input.ProjectPath);
+                var matchByRelativePath = fileList.FirstOrDefault(x => x.RelativePath == inferred.Location);
+                
+                if (inferred.Location.StartsWith("ProjectFiles"))
+                {
+                    var file = fileList.FirstOrDefault(x => x.FullyQualifiedIdentifier == inferred.Location);
+                    if (file != null)
+                        input.RootType.DataSource = input.RootType.DataSource with { Type = new DataSourceType.LocalFile(file.FullPath) };
+                }
+                else if (matchByRelativePath != null)
+                    input.RootType.DataSource = input.RootType.DataSource with { Type = new DataSourceType.LocalFile(matchByRelativePath.FullPath) };
                 else if (File.Exists(inferred.Location))
-                    rootType.DataSource = rootType.DataSource with { Type = new DataSourceType.LocalFile(inferred.Location) };
+                    input.RootType.DataSource = input.RootType.DataSource with { Type = new DataSourceType.LocalFile(inferred.Location) };
                 else if (Uri.IsWellFormedUriString(inferred.Location, UriKind.Absolute))
-                    rootType.DataSource = rootType.DataSource with { Type = new DataSourceType.Http(inferred.Location) };
+                    input.RootType.DataSource = input.RootType.DataSource with { Type = new DataSourceType.Http(inferred.Location) };
                 else
                     throw new InvalidOperationException($"Unable to determine data source type: '{inferred.Location}'");
             }
 
             TextReader? reader = null;
-            if (rootType.DataSource.Type is DataSourceType.Http http)
+            if (input.RootType.DataSource.Type is DataSourceType.Http http)
             {
                 var rawData = await Cache.Get(http.Uri, async () =>
                 {
@@ -115,7 +126,7 @@ public class TypesGenerator : IIncrementalGenerator
                 });
                 reader = new StringReader(rawData);
             }
-            else if (rootType.DataSource.Type is DataSourceType.LocalFile localFile)
+            else if (input.RootType.DataSource.Type is DataSourceType.LocalFile localFile)
             {
                 reader = new StreamReader(File.OpenRead(localFile.FileName));
             }
@@ -124,14 +135,14 @@ public class TypesGenerator : IIncrementalGenerator
                 throw new InvalidOperationException($"Unable to read data.");
 
             Parser.Parser parser =
-                rootType.DataSource.Format switch
+                input.RootType.DataSource.Format switch
                 {
                     Format.Json => new JsonParser(),
                     // TODO: Implement other format parsers.
-                    _ => throw new InvalidOperationException($"Parser not found for format: {rootType.DataSource.Format.GetType().Name}")
+                    _ => throw new InvalidOperationException($"Parser not found for format: {input.RootType.DataSource.Format.GetType().Name}")
                 };
 
-            var result = parser.Parse(reader, context, rootType, typeDefinitions);
+            var result = parser.Parse(reader, input.Context, input.RootType, input.Types);
 
             return new ExecutionResult.Ok(result);
         }
@@ -141,7 +152,7 @@ public class TypesGenerator : IIncrementalGenerator
         }
     }
 
-    private record ExecutionInput(SourceProductionContext Context, ImmutableArray<AdditionalText> AdditionalFiles, TypeDefinition RootType, List<TypeDefinition> Types);
+    private record ExecutionInput(SourceProductionContext Context, string ProjectPath, ImmutableArray<AdditionalText> AdditionalFiles, TypeDefinition RootType, List<TypeDefinition> Types);
 
     private abstract record ExecutionResult()
     {

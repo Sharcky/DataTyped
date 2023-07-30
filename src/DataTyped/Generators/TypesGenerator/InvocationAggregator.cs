@@ -8,6 +8,8 @@ namespace DataTyped.Generator;
 
 public class InvocationAggregator : Aggregator<InvocationExpressionSyntax, CodeAnalysisResult>
 {
+    public ImmutableArray<AdditionalText> AdditionalFiles { get; set; }
+
     public override bool Filter(SyntaxNode node, CancellationToken cancellationToken)
     {
         if (node is not InvocationExpressionSyntax invocation)
@@ -52,7 +54,17 @@ public class InvocationAggregator : Aggregator<InvocationExpressionSyntax, CodeA
         if (invocation.ArgumentList.Arguments.Count < 1)
             return;
 
-        if (!invocation.ArgumentList.Arguments[0].Expression.TryGetStringLiteralOrConst(context.SemanticModel, out var urlOrFileName))
+        var urlExpression = invocation.ArgumentList.Arguments[0].Expression;
+
+        urlExpression.TryGetStringLiteral(out var urlOrFileName);
+        if (urlOrFileName == null && urlExpression is MemberAccessExpressionSyntax urlMaes)
+        {
+            var fullMaes = urlMaes.ToFullString();
+            if (fullMaes.StartsWith("ProjectFiles"))
+                urlOrFileName = fullMaes;
+        }
+
+        if (string.IsNullOrEmpty(urlOrFileName))
             return;
 
         var namespaceName = invocation.GetContainingNamespace();
